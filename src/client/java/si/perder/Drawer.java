@@ -1,12 +1,15 @@
 package si.perder;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+
+import javax.imageio.ImageIO;
 
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
 import me.x150.renderer.render.OutlineFramebuffer;
@@ -24,30 +27,45 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 public class Drawer {
 
 	VertexBuffer vb;
+	BufferedImage bi;
+	Identifier bi_id;
 	
+	@SneakyThrows
 	public boolean init() {
         if (vb == null) {            
-            VertexFormat vmf = VertexFormats.POSITION_COLOR;
+            VertexFormat vmf = VertexFormats.POSITION_TEXTURE;
             BufferBuilder b = Tessellator.getInstance().getBuffer();
             b.begin(VertexFormat.DrawMode.TRIANGLES, vmf);
             
             VertexConsumer v;
             v = b.vertex(4, 81, 1);
-            v.color(0xFFFF0000);
+            v.color(0x20800000);
+            v.texture(0, 0);
             v.next();
             v = b.vertex(4, 82, 1);
-            v.color(0xFFFF0000);
+            v.color(0x20800000);
+            v.texture(0, 1);
             v.next();
             v = b.vertex(5, 82, 1);
-            v.color(0xFFFF0000);
+            v.color(0x20800000);
+            v.texture(1, 1);
             v.next();
             
             vb = BufferUtils.createVbo(b.end(), VertexBuffer.Usage.STATIC);
+        }
+        
+        if (bi == null) {
+			try (InputStream is = getClass().getResourceAsStream("/abc.png")) {
+				bi = ImageIO.read(is);
+				bi_id = RendererUtils.randomIdentifier();
+				RendererUtils.registerBufferedImageTexture(bi_id, bi);
+			}
         }
         
         return true;
@@ -70,8 +88,11 @@ public class Drawer {
 		try (val r = new SetupRender()) {
 			// RenderSystem.enableCull();
 	
-			ShaderProgram shader = GameRenderer.getPositionColorProgram();
-	
+			//ShaderProgram shader = GameRenderer.getPositionColorTexProgram();
+			ShaderProgram shader = GameRenderer.getPositionTexProgram();
+
+			RenderSystem.setShaderTexture(0, bi_id);
+			
 			try (val vb = new VertexBufferBind(this.vb)) {
 				vb.vb.draw(m4f, projectionMatrix, shader);
 			}
