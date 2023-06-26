@@ -1,22 +1,37 @@
 package si.perder;
 
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.util.Identifier;
+
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import me.x150.renderer.util.RendererUtils;
+
 public class ExampleMod implements ModInitializer {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger("mod00");
+    
+    static Identifier identifier;
 
 	@Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-
 		LOGGER.info("Hello Fabric world!");
+        try (InputStream in = getClass().getResourceAsStream("/abc.txt");
+        		BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+        	LOGGER.info(reader.readLine());
+
+        	Identifier identifier = RendererUtils.randomIdentifier();
+        	BufferedImage read1 = ImageIO.read(in);
+            RendererUtils.registerBufferedImageTexture(identifier, read1);
+            ExampleMod.identifier = identifier;
+        } catch (Exception e) {
+		}
 	}
 }
