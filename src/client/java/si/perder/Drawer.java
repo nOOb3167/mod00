@@ -6,7 +6,9 @@ import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import lombok.Cleanup;
 import lombok.SneakyThrows;
+import lombok.val;
 import me.x150.renderer.render.OutlineFramebuffer;
 import me.x150.renderer.render.Renderer3d;
 import me.x150.renderer.util.BufferUtils;
@@ -45,9 +47,7 @@ public class Drawer {
             v.color(0xFFFF0000);
             v.next();
             
-            BufferBuilder.BuiltBuffer end = b.end();
-            VertexBuffer vb_ = BufferUtils.createVbo(end, VertexBuffer.Usage.STATIC);
-            vb = vb_;
+            vb = BufferUtils.createVbo(b.end(), VertexBuffer.Usage.STATIC);
         }
         
         return true;
@@ -59,21 +59,20 @@ public class Drawer {
 		    Renderer3d.renderFilled(stack, Color.WHITE, new Vec3d(0, 81, 10), new Vec3d(5, 5, 5));
 		}, 1f, Color.GREEN, Color.BLACK);
         
-// Matrix4f viewMatrix = new Matrix4f(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-// m4f.mul(viewMatrix);
 		Vec3d origin = new Vec3d(0, 0, 0);
 
 		Vec3d o = transformVec3d(origin);
-		Matrix4f projectionMatrix = RenderSystem.getProjectionMatrix();
-		Matrix4f m4f = new Matrix4f(stack.peek().getPositionMatrix());
+		val projectionMatrix = RenderSystem.getProjectionMatrix();
+		val m4f = new Matrix4f(stack.peek().getPositionMatrix());
 		m4f.translate((float) o.x, (float) o.y, (float) o.z);
+		// m4f.mul(new Matrix4f(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
 
-		try (SetupRender r = new SetupRender()) {
+		try (val r = new SetupRender()) {
 			// RenderSystem.enableCull();
 	
 			ShaderProgram shader = GameRenderer.getPositionColorProgram();
 	
-			try (VertexBufferBind vb = new VertexBufferBind(this.vb)) {
+			try (val vb = new VertexBufferBind(this.vb)) {
 				vb.vb.draw(m4f, projectionMatrix, shader);
 			}
 		}
