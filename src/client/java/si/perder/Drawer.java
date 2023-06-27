@@ -7,6 +7,7 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -28,6 +29,7 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 public class Drawer {
@@ -36,28 +38,33 @@ public class Drawer {
 	BufferedImage bi;
 	Identifier bi_id;
 	
+	private static VertexBuffer vboQuadXYCreate(Box q, VertexFormat vmf) {
+        BufferBuilder b = Tessellator.getInstance().getBuffer();
+        b.begin(VertexFormat.DrawMode.QUADS, vmf);
+        
+        VertexConsumer v;
+        v = b.vertex(q.minX, q.minY, q.minZ);
+        v.texture(0, 0);
+        v.next();
+        v = b.vertex(q.maxX, q.minY, q.minZ);
+        v.texture(1, 0);
+        v.next();
+        v = b.vertex(q.maxX, q.maxY, q.minZ);
+        v.texture(1, 1);
+        v.next();
+        v = b.vertex(q.minX, q.maxY, q.minZ);
+        v.texture(0, 1);
+        v.next();
+        
+        return BufferUtils.createVbo(b.end(), VertexBuffer.Usage.STATIC);		
+	}
+	
 	@SneakyThrows
 	public boolean init() {
         if (vb == null) {            
             VertexFormat vmf = VertexFormats.POSITION_TEXTURE;
-            BufferBuilder b = Tessellator.getInstance().getBuffer();
-            b.begin(VertexFormat.DrawMode.TRIANGLES, vmf);
             
-            VertexConsumer v;
-            v = b.vertex(4, 81, 1);
-            v.color(0x20800000);
-            v.texture(0, 0);
-            v.next();
-            v = b.vertex(4, 82, 1);
-            v.color(0x20800000);
-            v.texture(0, 1);
-            v.next();
-            v = b.vertex(5, 82, 1);
-            v.color(0x20800000);
-            v.texture(1, 1);
-            v.next();
-            
-            vb = BufferUtils.createVbo(b.end(), VertexBuffer.Usage.STATIC);
+            vb = vboQuadXYCreate(new Box(4, 81, 1, 5, 82, 1), vmf);
         }
         
         if (bi == null) {
