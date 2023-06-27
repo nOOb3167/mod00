@@ -22,14 +22,15 @@ public class ExampleMod implements ModInitializer {
 		LOGGER.info("Hello Fabric world!");
 		
 		ServerTickEvents.START_WORLD_TICK.register(serverworld -> {
+			long time = serverworld.getLevelProperties().getTime();
 			PlayerEntity player = serverworld.getClosestPlayer(4d, 81d, 1d, 10d, false);
 	    	if (player != null) {
 		    	val pos = player.getBlockPos();
 		    	val dogebox = new Box(new BlockPos(4+5, 81+5, 1+5), new BlockPos(4-5, 81-5, 1-5));
 		    	val contains = dogebox.contains(pos.getX(), pos.getY(), pos.getZ());
-		    	LOGGER.info(String.format("r %s %s %s %s", pos.getX(), pos.getY(), pos.getZ(), contains));
-		    	if (contains) {
-		    		player.damage(player.getDamageSources().genericKill(), Float.MAX_VALUE);
+		    	LOGGER.info(String.format("r %s %s %s %s %s", pos.getX(), pos.getY(), pos.getZ(), contains, time));
+		    	if (contains && (time % 40 == 0)) {
+		    		player.damage(player.getDamageSources().cactus(), 0.1f);
 		    	}
 	    	}
 		});

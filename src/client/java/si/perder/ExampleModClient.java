@@ -10,7 +10,5 @@ public class ExampleModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         RenderEvents.WORLD.register(h::world);
-        
-        ClientTickEvents.START_CLIENT_TICK.register((client -> h.tick(client)));
     }
 }
