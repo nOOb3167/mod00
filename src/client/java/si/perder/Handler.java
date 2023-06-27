@@ -20,20 +20,4 @@ public class Handler {
         if (drawer.init())
         	drawer.run(stack);        
     }
-    
-    public void tick(MinecraftClient client) {
-    	ClientPlayerEntity player = client.player;
-    	if (player != null) {
-	    	val pos = player.getBlockPos();
-	    	val dogebox = new Box(new BlockPos(4+5, 81+5, 1+5), new BlockPos(4-5, 81-5, 1-5));
-	    	val contains = dogebox.contains(pos.getX(), pos.getY(), pos.getZ());
-	    	LOGGER.info(String.format("p %s %s %s %s", pos.getX(), pos.getY(), pos.getZ(), contains));
-	    	if (contains) {
-	    		//val dmgs = client.world.getDamageSources();
-	    		//player.damage(dmgs.onFire(), 1);
-	    		//livingentity damage(this.getDamageSources().genericKill(), Float.MAX_VALUE)
-	    		player.damage(player.getDamageSources().genericKill(), Float.MAX_VALUE);
-	    	}
-    	}
-    }
 }
