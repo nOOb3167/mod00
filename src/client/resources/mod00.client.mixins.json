@@ -3,6 +3,7 @@
 	"package": "si.perder.mixin.client",
 	"compatibilityLevel": "JAVA_17",
 	"client": [
+		"LivingEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
