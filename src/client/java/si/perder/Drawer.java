@@ -207,6 +207,8 @@ public class Drawer {
 		    Renderer3d.renderFilled(stack, Color.WHITE, new Vec3d(0, 81, 10), new Vec3d(5, 5, 5));
 		}, 1f, Color.GREEN, Color.BLACK);
         
+		RenderSystem.enableDepthTest();
+		
 		Vec3d origin = new Vec3d(0, 0, 0);
 
 		Vec3d o = transformVec3d(origin);
