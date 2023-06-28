@@ -28,8 +28,8 @@ public class ExampleMod implements ModInitializer {
 		    	val pos = player.getBlockPos();
 		    	val dogebox = new Box(new BlockPos(4+5, 81+5, 1+5), new BlockPos(4-5, 81-5, 1-5));
 		    	val contains = dogebox.contains(pos.getX(), pos.getY(), pos.getZ());
-		    	LOGGER.info(String.format("r %s %s %s %s %s", pos.getX(), pos.getY(), pos.getZ(), contains, time));
 		    	if (contains && (time % 40 == 0)) {
+		    		LOGGER.info(String.format("r %s %s %s %s %s", pos.getX(), pos.getY(), pos.getZ(), contains, time));
 		    		player.damage(player.getDamageSources().cactus(), 0.1f);
 		    	}
 	    	}

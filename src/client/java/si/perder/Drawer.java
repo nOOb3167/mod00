@@ -3,11 +3,17 @@ package si.perder;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -33,8 +39,10 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 public class Drawer {
-
+	public static final Logger LOGGER = LoggerFactory.getLogger("mod00");
+	
 	VertexBuffer vb;
+	VertexBuffer vb2;
 	BufferedImage bi;
 	Identifier bi_id;
 	
@@ -59,12 +67,77 @@ public class Drawer {
         return BufferUtils.createVbo(b.end(), VertexBuffer.Usage.STATIC);		
 	}
 	
+	private static VertexBuffer vboBoxCreate(Vec3d s, Vec3d e, double radius, VertexFormat vmf) {
+        BufferBuilder b = Tessellator.getInstance().getBuffer();
+        b.begin(VertexFormat.DrawMode.QUADS, vmf);
+        
+        val a = e.subtract(s);
+        val up_ = new Vec3d(0, 1, 0);
+        val side_ = a.crossProduct(up_).normalize();
+        
+        val up = up_.multiply(radius);
+        val side = side_.multiply(radius);
+        
+        val sdl = s.add(up.negate()).add(side.negate());
+        val sul = s.add(up).add(side.negate());
+        val sur = s.add(up).add(side);
+        val sdr = s.add(up.negate()).add(side);
+
+        val edl = e.add(up.negate()).add(side.negate());
+        val eul = e.add(up).add(side.negate());
+        val eur = e.add(up).add(side);
+        val edr = e.add(up.negate()).add(side);
+        
+        val plane_up = Arrays.asList(eul, eur, sur, sul);
+        val plane_rt = Arrays.asList(edr, sdr, sur, eur);
+        val plane_fr = Arrays.asList(edl, edr, eur, eul);
+
+        List<Vec3d> plane_do = new ArrayList<>(plane_up);
+        List<Vec3d> plane_lt = new ArrayList<>(plane_rt);
+        List<Vec3d> plane_bk = new ArrayList<>(plane_fr);
+        
+        Collections.reverse(plane_do);
+        Collections.reverse(plane_lt);
+        Collections.reverse(plane_bk);
+
+        plane_do = plane_do.stream().map(z -> z.add(up.multiply(-2))).collect(Collectors.toList());
+        plane_lt = plane_lt.stream().map(z -> z.add(side.multiply(-2))).collect(Collectors.toList());
+        plane_bk = plane_bk.stream().map(z -> z.add(a.multiply(-1))).collect(Collectors.toList());
+        
+        oneQuad(b, plane_up);
+        oneQuad(b, plane_rt);
+        oneQuad(b, plane_fr);
+
+        oneQuad(b, plane_do);
+        oneQuad(b, plane_lt);
+        oneQuad(b, plane_bk);
+        
+        return BufferUtils.createVbo(b.end(), VertexBuffer.Usage.STATIC);
+	}
+	
+	private static void oneQuad(BufferBuilder b, List<Vec3d> q) {
+		VertexConsumer v;
+		for (val x: q) {
+			v = b.vertex(x.x, x.y, x.z);
+			v.texture(0, 0);
+			v.next();
+		}
+	}
+	
+	private static Vec3d[] copyvec(Vec3d a[]) {
+		Vec3d b[] = new Vec3d[a.length];
+		for (int i = 0; i < b.length; i++)
+			b[i] = new Vec3d(a[i].x, a[i].y, a[i].z);
+		return b;
+	}
+	
 	@SneakyThrows
 	public boolean init() {
         if (vb == null) {            
             VertexFormat vmf = VertexFormats.POSITION_TEXTURE;
             
             vb = vboQuadXYCreate(new Box(4, 81, 1, 5, 82, 1), vmf);
+            vb2 = vboBoxCreate(new Vec3d(5, 81, 3), new Vec3d(10, 81, 3), 2, vmf);
         }
         
         if (bi == null) {
@@ -90,18 +163,18 @@ public class Drawer {
 		val projectionMatrix = RenderSystem.getProjectionMatrix();
 		val m4f = new Matrix4f(stack.peek().getPositionMatrix());
 		m4f.translate((float) o.x, (float) o.y, (float) o.z);
-		// m4f.mul(new Matrix4f(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
 
-		try (val r = new SetupRender()) {
-			// RenderSystem.enableCull();
-	
-			//ShaderProgram shader = GameRenderer.getPositionColorTexProgram();
+		try (val r = new SetupRender()) {	
 			ShaderProgram shader = GameRenderer.getPositionTexProgram();
 
 			RenderSystem.setShaderTexture(0, bi_id);
 			
 			try (val vb = new VertexBufferBind(this.vb)) {
 				vb.vb.draw(m4f, projectionMatrix, shader);
+			}
+
+			try (val vb2 = new VertexBufferBind(this.vb2)) {
+				vb2.vb.draw(m4f, projectionMatrix, shader);
 			}
 		}
 	}
