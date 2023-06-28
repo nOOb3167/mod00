@@ -12,6 +12,7 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
+import javax.management.RuntimeErrorException;
 
 import org.joml.Matrix4f;
 import org.slf4j.Logger;
@@ -67,6 +68,53 @@ public class Drawer {
         v.next();
         
         return BufferUtils.createVbo(b.end(), VertexBuffer.Usage.STATIC);		
+	}
+	
+	private static VertexBuffer vboBoxCreateUnit(VertexFormat vmf) {
+        BufferBuilder b = Tessellator.getInstance().getBuffer();
+        b.begin(VertexFormat.DrawMode.QUADS, vmf);
+        
+        float v[] = {
+        	// fr
+        	-1, +1, -1,
+        	+1, +1, -1,
+        	+1, +1, +1,
+        	-1, +1, +1,
+        	// bk
+        	-1, -1, -1,
+        	-1, -1, +1,
+        	+1, -1, +1,
+        	+1, -1, -1,
+        	// up
+        	-1, +1, +1,
+        	+1, +1, +1,
+        	+1, -1, +1,
+        	-1, -1, +1,
+        	// do
+        	+1, +1, -1,
+        	-1, +1, -1,
+        	-1, -1, -1,
+        	+1, -1, -1,
+        	// lt
+        	-1, -1, -1,
+        	-1, +1, -1,
+        	-1, +1, +1,
+        	-1, -1, +1,
+        	// rt
+        	+1, +1, -1,
+        	+1, -1, -1,
+        	+1, -1, +1,
+        	+1, +1, +1,
+        };
+        if (v.length != 3 * 4 * 6)
+        	throw new RuntimeException("quad length");
+        Vec3d u[] = new Vec3d[4*6];
+        for (int i = 0; i < 4 * 6; i++)
+        	u[i] = new Vec3d(v[3*i+0], v[3*i+1], v[3*i+2]);
+        for (int i = 0; i < 6; i++)
+        	oneQuad(b, Arrays.asList(new Vec3d[] { u[4*i+0], u[4*i+1], u[4*i+2], u[4*i+3] }));
+        
+        return BufferUtils.createVbo(b.end(), VertexBuffer.Usage.STATIC);
 	}
 	
 	private static VertexBuffer vboBoxCreate(Vec3d s, Vec3d e, double radius, VertexFormat vmf) {
@@ -138,7 +186,8 @@ public class Drawer {
             VertexFormat vmf = VertexFormats.POSITION_TEXTURE;
             
             vb = vboQuadXYCreate(new Box(4, 81, 1, 5, 82, 1), vmf);
-            vb2 = vboBoxCreate(new Vec3d(5, 81, 3), new Vec3d(10, 81, 3), 2, vmf);
+            //vb2 = vboBoxCreate(new Vec3d(5, 81, 3), new Vec3d(10, 81, 3), 2, vmf);
+            vb2 = vboBoxCreateUnit(vmf);
         }
         
         if (bi == null) {
@@ -175,6 +224,7 @@ public class Drawer {
 			}
 
 			try (val vb2 = new VertexBufferBind(this.vb2)) {
+				m4f.translate(0, 81, 0);
 				vb2.vb.draw(m4f, projectionMatrix, shader);
 			}
 		}
