@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -117,18 +119,17 @@ public class Drawer {
 	
 	private static void oneQuad(BufferBuilder b, List<Vec3d> q) {
 		VertexConsumer v;
+		Queue<Vec3d> texs = new LinkedList<>();
+		texs.add(new Vec3d(0, 0, 0));
+		texs.add(new Vec3d(1, 0, 0));
+		texs.add(new Vec3d(1, 1, 0));
+		texs.add(new Vec3d(0, 1, 0));
 		for (val x: q) {
 			v = b.vertex(x.x, x.y, x.z);
-			v.texture(0, 0);
+			val t = texs.remove();
+			v.texture((float)t.x, (float)t.y);
 			v.next();
 		}
-	}
-	
-	private static Vec3d[] copyvec(Vec3d a[]) {
-		Vec3d b[] = new Vec3d[a.length];
-		for (int i = 0; i < b.length; i++)
-			b[i] = new Vec3d(a[i].x, a[i].y, a[i].z);
-		return b;
 	}
 	
 	@SneakyThrows
