@@ -12,8 +12,6 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
-import javax.management.RuntimeErrorException;
-
 import org.joml.Matrix4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,12 +178,28 @@ public class Drawer {
 		}
 	}
 	
+	private static Matrix4f laserTo(Vec3d c, Vec3d p) {
+		Matrix4f m4f = new Matrix4f();
+		m4f.translate((float)c.x, (float)c.y, (float)c.z);
+		Vec3d xydif = p.subtract(c);
+		Matrix4f ss = new Matrix4f(
+		1, 0, (float)xydif.x, 0,
+		0, 1, (float)xydif.y, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1);
+		ss.transpose();
+		m4f.mul(ss);
+		m4f.scale(0.25f);
+		m4f.translate(0, 0, 1);
+		return m4f;
+	}
+	
 	@SneakyThrows
 	public boolean init() {
         if (vb == null) {            
             VertexFormat vmf = VertexFormats.POSITION_TEXTURE;
             
-            vb = vboQuadXYCreate(new Box(4, 81, 1, 5, 82, 1), vmf);
+            vb = vboQuadXYCreate(new Box(4, 81, -7, 5, 82, -7), vmf);
             //vb2 = vboBoxCreate(new Vec3d(5, 81, 3), new Vec3d(10, 81, 3), 2, vmf);
             vb2 = vboBoxCreateUnit(vmf);
         }
@@ -213,7 +227,7 @@ public class Drawer {
 
 		Vec3d o = transformVec3d(origin);
 		val projectionMatrix = RenderSystem.getProjectionMatrix();
-		val m4f = new Matrix4f(stack.peek().getPositionMatrix());
+		Matrix4f m4f = new Matrix4f(stack.peek().getPositionMatrix());
 		m4f.translate((float) o.x, (float) o.y, (float) o.z);
 
 		try (val r = new SetupRender()) {	
@@ -226,7 +240,18 @@ public class Drawer {
 			}
 
 			try (val vb2 = new VertexBufferBind(this.vb2)) {
-				m4f.translate(0, 81, 0);
+				//m4f.translate(0, 81, 0);
+				//m4f.rotate((float)Math.toRadians(30), new Vector3f(0, 1, 0));
+//				Matrix4f ss = new Matrix4f(
+//						1, 0, 1, 0,
+//						0, 1, 0, 0,
+//						0, 0, 1, 0,
+//						0, 0, 0, 1);
+//				ss.transpose();
+//				m4f.mul(ss);
+				Vec3d quadCenter = new Vec3d(4.5f, 81.5f, -7);
+				Vec3d target = new Vec3d(1, 1, 0).add(quadCenter);
+				m4f.mul(laserTo(quadCenter, target));
 				vb2.vb.draw(m4f, projectionMatrix, shader);
 			}
 		}
