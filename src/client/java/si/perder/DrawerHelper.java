@@ -1,9 +1,14 @@
 package si.perder;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
+import javax.imageio.ImageIO;
 
 import org.joml.Matrix4f;
 
@@ -17,6 +22,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexFormat;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
@@ -126,6 +132,15 @@ public class DrawerHelper {
 		Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
 		Vec3d camPos = camera.getPos();
 		return in.subtract(camPos);
+	}
+
+	public static Identifier resource2image(Class<?> clazz, String rname) throws IOException {
+		try (InputStream is = clazz.getResourceAsStream(rname)) {
+			BufferedImage bi = ImageIO.read(is);
+			Identifier bi_id = RendererUtils.randomIdentifier();
+			RendererUtils.registerBufferedImageTexture(bi_id, bi);
+			return bi_id;
+		}
 	}
 
 }

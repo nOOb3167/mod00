@@ -1,9 +1,6 @@
 package si.perder;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.InputStream;
-import javax.imageio.ImageIO;
 import org.joml.Matrix4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +11,6 @@ import lombok.SneakyThrows;
 import lombok.val;
 import me.x150.renderer.render.OutlineFramebuffer;
 import me.x150.renderer.render.Renderer3d;
-import me.x150.renderer.util.RendererUtils;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.GameRenderer;
@@ -32,7 +28,6 @@ public class Drawer {
 
 	VertexBuffer vb;
 	VertexBuffer vb2;
-	BufferedImage bi;
 	Identifier bi_id;
 
 	@SneakyThrows
@@ -42,12 +37,8 @@ public class Drawer {
 			vb2 = DrawerHelper.vboBoxCreateUnit(vmf);
 		}
 
-		if (bi == null) {
-			try (InputStream is = getClass().getResourceAsStream("/abc.png")) {
-				bi = ImageIO.read(is);
-				bi_id = RendererUtils.randomIdentifier();
-				RendererUtils.registerBufferedImageTexture(bi_id, bi);
-			}
+		if (bi_id == null) {
+			bi_id = DrawerHelper.resource2image(getClass(), "/abc.png");
 		}
 
 		return true;
