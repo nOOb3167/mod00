@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import me.x150.renderer.event.RenderEvents;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.BlockPos;
 
 public class ExampleModClient implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("mod00");
@@ -29,7 +29,7 @@ public class ExampleModClient implements ClientModInitializer {
 				onDamagedQueue.add(new D(livingEntity.getBlockPos()));
 				LOGGER.info(String.format("onDamaged %s", livingEntity.getClass()));
 			}
-			return ActionResult.PASS;
+			return InteractionResult.PASS;
 		});
 	}
 }
