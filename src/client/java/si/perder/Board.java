@@ -51,7 +51,7 @@ public class Board {
 			RenderSystem.setShaderTexture(0, dd.idImageTexture);
 
 			try (val vb = new VertexBufferBind(dd.vertexBuffer)) {
-				vb.vb.drawWithShader(m4f, projectionMatrix, shader);
+				vb.drawWithShader(m4f, projectionMatrix, shader);
 			}
 		}
 	}

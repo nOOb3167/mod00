@@ -65,14 +65,14 @@ public class Drawer {
 			RenderSystem.setShaderTexture(0, bi_id);
 
 			try (val vb = new VertexBufferBind(this.vb)) {
-				vb.vb.drawWithShader(m4f, projectionMatrix, shader);
+				vb.drawWithShader(m4f, projectionMatrix, shader);
 			}
 
 			try (val vb2 = new VertexBufferBind(this.vb2)) {
 				Vec3 quadCenter = new Vec3(4.5f, 81.5f, -7);
 				Vec3 target = new Vec3(1, 1, 0).add(quadCenter);
 				m4f.mul(DrawerHelper.laserTo(quadCenter, target));
-				vb2.vb.drawWithShader(m4f, projectionMatrix, shader);
+				vb2.drawWithShader(m4f, projectionMatrix, shader);
 			}
 		}
 	}

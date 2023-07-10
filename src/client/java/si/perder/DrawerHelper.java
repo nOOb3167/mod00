@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import lombok.val;
+import lombok.experimental.Delegate;
 import me.x150.renderer.util.BufferUtils;
 import me.x150.renderer.util.RendererUtils;
 import net.minecraft.client.Camera;
@@ -162,8 +163,9 @@ class SetupRender implements AutoCloseable {
 }
 
 class VertexBufferBind implements AutoCloseable {
-	public VertexBuffer vb;
-
+	@Delegate(excludes = AutoCloseable.class)
+	private final VertexBuffer vb;
+	
 	public VertexBufferBind(VertexBuffer vb) {
 		this.vb = vb;
 		this.vb.bind();
