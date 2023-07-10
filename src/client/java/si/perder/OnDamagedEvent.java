@@ -2,23 +2,23 @@ package si.perder;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.util.ActionResult;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 
 public interface OnDamagedEvent {
     Event<OnDamagedEvent> EVENT = EventFactory.createArrayBacked(OnDamagedEvent.class,
         (listeners) -> (livingEntity, damageSource) -> {
             for (OnDamagedEvent listener : listeners) {
-                ActionResult result = listener.onDamaged(livingEntity, damageSource);
+                InteractionResult result = listener.onDamaged(livingEntity, damageSource);
  
-                if(result != ActionResult.PASS) {
+                if(result != InteractionResult.PASS) {
                     return result;
                 }
             }
  
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     });
  
-    ActionResult onDamaged(LivingEntity livingEntity, DamageSource damageSource);
+    InteractionResult onDamaged(LivingEntity livingEntity, DamageSource damageSource);
 }
