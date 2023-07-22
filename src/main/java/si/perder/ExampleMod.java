@@ -2,11 +2,13 @@ package si.perder;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,13 @@ public class ExampleMod implements ModInitializer {
 		    		player.hurt(player.damageSources().cactus(), 0.1f);
 		    	}
 	    	}
+
+			val spawn = new Vec3(serverworld.getLevelData().getXSpawn(), serverworld.getLevelData().getYSpawn(), serverworld.getLevelData().getZSpawn());
+			val spawnAngle = serverworld.getLevelData().getSpawnAngle();
+		});
+
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			LOGGER.info("JOINED [%s] [%s]".formatted(handler.getPlayer().getName().getString(), handler.getPlayer().getDisplayName().getString()));
 		});
 	}
 }
