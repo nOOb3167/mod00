@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -14,10 +13,12 @@ import org.slf4j.LoggerFactory;
 
 import lombok.val;
 
+import java.util.TreeSet;
+
 public class ExampleMod implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("mod00");
     
-    static ResourceLocation identifier;
+	static Vec3 mSpawn;
 
 	@Override
 	public void onInitialize() {
@@ -36,12 +37,13 @@ public class ExampleMod implements ModInitializer {
 		    	}
 	    	}
 
-			val spawn = new Vec3(serverworld.getLevelData().getXSpawn(), serverworld.getLevelData().getYSpawn(), serverworld.getLevelData().getZSpawn());
-			val spawnAngle = serverworld.getLevelData().getSpawnAngle();
+			mSpawn = new Vec3(serverworld.getLevelData().getXSpawn(), serverworld.getLevelData().getYSpawn(), serverworld.getLevelData().getZSpawn());
 		});
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			LOGGER.info("JOINED [%s] [%s]".formatted(handler.getPlayer().getName().getString(), handler.getPlayer().getDisplayName().getString()));
+			val p = handler.getPlayer();
+			p.teleportTo(p.serverLevel(), mSpawn.x, mSpawn.y, mSpawn.z, new TreeSet<>(), 0, 0);
+			LOGGER.info("JOINED [%s] [%s]".formatted(p.getName().getString(), p.getDisplayName().getString()));
 		});
 	}
 }
