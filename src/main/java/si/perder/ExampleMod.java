@@ -2,7 +2,9 @@ package si.perder;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
@@ -44,6 +46,7 @@ public class ExampleMod implements ModInitializer {
 			val p = handler.getPlayer();
 			p.teleportTo(p.serverLevel(), mSpawn.x, mSpawn.y, mSpawn.z, new TreeSet<>(), 0, 0);
 			LOGGER.info("JOINED [%s] [%s]".formatted(p.getName().getString(), p.getDisplayName().getString()));
+			ServerPlayNetworking.send(p, NetworkDefs.BOARD_PACKET_ID, PacketByteBufs.empty());
 		});
 	}
 }

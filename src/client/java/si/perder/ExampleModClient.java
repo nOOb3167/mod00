@@ -3,6 +3,7 @@ package si.perder;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,10 @@ public class ExampleModClient implements ClientModInitializer {
 	
 	@Override
 	public void onInitializeClient() {
+		ClientPlayNetworking.registerGlobalReceiver(NetworkDefs.BOARD_PACKET_ID, (client, handler, buf, responseSender) -> {
+			LOGGER.info("received [%s]".formatted(buf));
+		});
+
 		RenderEvents.WORLD.register(h::world);
 		OnDamagedEvent.EVENT.register((livingEntity, damageSource) -> {
 			if (livingEntity instanceof LocalPlayer) {
